@@ -1,0 +1,165 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+  <script src="cordova.js"></script>
+  <script src="components/loader.js"></script>
+  <script src="lib/onsenui/js/onsenui.min.js"></script>
+
+  <link rel="stylesheet" href="components/loader.css">
+  <link rel="stylesheet" href="lib/onsenui/css/onsenui.css">
+  <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
+  <link rel="stylesheet" href="css/style.css">
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+<!-- FullCalendar JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+
+  <script>
+    //Onsen UI 基本ファイル
+        ons.ready(function() {
+          console.log("Onsen UI is ready!");
+        });
+
+         if (ons.platform.isIPhoneX()) {
+          document.documentElement.setAttribute('onsflag-iphonex-portrait', '');
+          document.documentElement.setAttribute('onsflag-iphonex-landscape', '');
+        }
+
+    //ページ遷移実現ファイル
+        document.addEventListener('init', function(event) {
+            var page = event.target;
+
+        if (page.id === 'page1') {
+            page.querySelector('#push-button').onclick = function() {
+            document.querySelector('#myNavigator').pushPage("page2.html", {data: {title: '記録の入力'}});
+            };
+        } else if (page.id === 'page2') {
+            page.querySelector('ons-toolbar .center').innerHTML = page.data.title;
+        }
+    });
+
+    //トレーニング記録入力完了時
+        function addtraining() {
+            // 入力されたデータを取得
+                const year = document.getElementById('Year').value;
+                const month = document.getElementById('Month').value;
+                const day = document.getElementById('Day').value;
+                const trainingType = document.querySelector('.custom-select').value;
+                const repetitions = document.getElementById('how-many-training').value;
+
+            // 入力内容の確認メッセージを表示
+                if (year && month && day && trainingType && repetitions) {
+                alert(`${year}年${month}月${day}日に「${trainingType}」を${repetitions}回実行しました！次もがんばろう！`);
+        // トレーニングデータをオブジェクトにまとめる
+        const trainingData = {
+            date: `${year}-${month}-${day}`,
+            type: trainingType,
+            repetitions: repetitions
+        };
+
+        // デバッグ: trainingData が正しく作成されているか確認
+        console.log("Training Data:", JSON.stringify(trainingData, null, 2));
+
+        // 現在のローカルストレージのデータを取得
+        let trainingList = JSON.parse(localStorage.getItem('trainingList')) || [];
+
+        // デバッグ: trainingList の状態を確認
+        console.log("Before Adding:", JSON.stringify(trainingList, null, 2));
+
+        // 新しいデータをリストに追加
+        trainingList.push(trainingData);
+
+        // デバッグ: 追加後のリストを確認
+        console.log("After Adding:", JSON.stringify(trainingList, null, 2));
+
+        // ローカルストレージに保存（文字列形式に変換）
+        localStorage.setItem('trainingList', JSON.stringify(trainingList));
+
+        // 完了メッセージ
+        alert("トレーニング記録を保存しました！");
+                } else {
+                alert("すべての項目を入力してください！");
+                }
+
+            // コンソールにデータを出力（デバッグ用）
+                console.log({
+                year,
+                month,
+                day,
+                trainingType,
+                repetitions
+                });
+        }
+
+
+
+  </script>
+<ons-navigator swipeable id="myNavigator" page="page1.html"></ons-navigator>
+
+<template id="page1.html">
+  <ons-page id="page1">
+      <!-- ヘッダー -->
+    <ons-toolbar>
+        <div class="center">筋トレ管理アプリ</div>
+        	<div class="hamburger-demo-menubox">
+		<input id="hamburger-demo1" type="checkbox" class="input-hidden">
+		<label for="hamburger-demo1" class="hamburger-demo-switch hamburger-demo-switch1">
+			<span class="hamburger-switch-line1"></span>
+		</label>
+		<div class="hamburger-demo-menuwrap">
+			<ul class="hamburger-demo-menulist">
+				<li><a href="#" onclick="">メニューリスト１</a></li>
+				<li><a href="#">メニューリスト２</a></li>
+			</ul>
+		</div>
+		<div class="hamburger-demo-cover"></div>
+	</div>
+    </ons-toolbar>
+
+    <!-- コンテンツエリア -->
+    <div id="calendar" style="margin: 20px;"></div>
+
+    <div class="content">
+      <p>ようこそ！ここで筋トレ記録を管理しましょう。</p>
+    <ons-button id="push-button">トレーニングを記録する</ons-button>
+  </ons-page>
+
+    <!-- フッター -->
+    <ons-bottom-toolbar>
+      <div style="text-align: center;">© 2024 筋トレ管理アプリ</div>
+    </ons-bottom-toolbar>
+
+</template>
+
+<template id="page2.html">
+  <ons-page id="page2">
+    <ons-toolbar>
+      <div class="left"><ons-back-button>page2</ons-back-button></div>
+        <ons-button onclick="addtraining()" id="add">記録！</ons-button>
+      <div class="center">トレーニングを記録</div>
+    </ons-toolbar>
+    <p class="input-center">ここで今日のトレーニングを記録しましょう！</p>
+    <br>
+        <ons-input id="Year" type="number" modifier="underbar" placeholder="20XX"></ons-input>年
+        <ons-input id="Month" type="number" max="12" modifier="underbar"></ons-input>月
+        <ons-input id="Day" type="number" max="31" modifier="underbar"></ons-input>日
+    <div class="select-center">
+        <select class="custom-select">
+            <option value="" disabled selected>選択してください</option>
+            <option value="プッシュアップ">プッシュアップ(腕立て伏せ)</option>
+            <option value="上体起こし">上体起こし</option>
+        </select>
+    </div>
+    <p id=wo>を</p>
+    <ons-input id="how-many-training" type="number" modifier="underbar"></ons-input>
+    <p id="kai">回</p>
+  </ons-page>
+</template>
+
+<template id="page3.html">
+  <ons-page id="page3">
+
+  </ons-page>
